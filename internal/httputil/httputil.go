@@ -1,8 +1,11 @@
 package httputil
 
 import (
+	"net"
 	"net/http"
+	"bufio"
 	"sync"
+	"fmt"
 )
 
 var responseWriterPool sync.Pool
@@ -62,7 +65,13 @@ func (rw *ResponseWriter) WriteHeader(status int) {
 	rw.responseStatus = status
 	rw.responseWriter.WriteHeader(status)
 }
-
+func (rw *ResponseWriter) Hijack() (net.Conn, *bufio.ReadWriter, error){
+	if h, ok := rw.responseWriter.(http.Hijacker); ok {
+		return h.Hijack()
+	}
+	return nil,nil,fmt.Errorf("unable to hijack")
+		
+}
 func (rw *ResponseWriter) Flush() {
 	if f, ok := rw.responseWriter.(http.Flusher); ok {
 		f.Flush()
