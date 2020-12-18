@@ -68,3 +68,8 @@ func (rw *ResponseWriter) Flush() {
 		f.Flush()
 	}
 }
+
+func (rw *ResponseWriter) CloseNotify() <-chan bool {
+
+	return rw.responseWriter.(http.CloseNotifier).CloseNotify()
+}
